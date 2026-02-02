@@ -1,0 +1,28 @@
+# Dependencies
+node_modules/
+npm-debug.log*
+
+# Git
+.git
+.gitignore
+
+# Documentation
+README.md
+*.md
+
+# Development files
+.env*
+.vscode/
+.idea/
+
+# Test files
+test/
+tests/
+*.test.js
+*.spec.js
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.log

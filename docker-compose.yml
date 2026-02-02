@@ -1,0 +1,65 @@
+services:
+  claude-app:
+    build: ./app
+    image: onclaude
+    volumes:
+      - ${WORKSPACE_PATH:-C:/Users/me/projects}:/workspace
+      - ${CLAUDE_CONFIG_PATH}:/home/node_user/.claude
+    environment:
+      - NTFY_TOPIC=${NTFY_TOPIC}
+      - NTFY_SERVER=${NTFY_SERVER:-https://ntfy.sh}
+      - NTFY_TOKEN=${NTFY_TOKEN:-}
+      - DEBOUNCE_SECONDS=${DEBOUNCE_SECONDS:-30}
+      - CLAUDE_OPTS=${CLAUDE_OPTS:-}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - DOMAIN=${DOMAIN}
+      - MOCK_MODE=${MOCK_MODE:-false}
+      - AUTH_USER=${AUTH_USER}
+      - AUTH_PASS_HASH=${AUTH_PASS_HASH}
+    networks:
+      - internal
+    restart: unless-stopped
+
+  caddy:
+    image: caddy:2-alpine
+    ports:
+      - "443:443"
+      - "80:80"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    environment:
+      - DOMAIN=${DOMAIN}
+      - AUTH_USER=${AUTH_USER}
+      - AUTH_PASS_HASH=${AUTH_PASS_HASH}
+      - NTFY_SELF_HOSTED=${NTFY_SELF_HOSTED:-false}
+    networks:
+      - internal
+    depends_on:
+      - claude-app
+    restart: unless-stopped
+
+  ntfy:
+    image: binwiederhier/ntfy
+    command: serve
+    profiles:
+      - ntfy
+    volumes:
+      - ntfy-cache:/var/cache/ntfy
+    environment:
+      - NTFY_BASE_URL=https://${DOMAIN}/ntfy
+      - NTFY_BEHIND_PROXY=true
+    networks:
+      - internal
+    restart: unless-stopped
+
+networks:
+  internal:
+    driver: bridge
+
+volumes:
+  claude-auth:
+  caddy-data:
+  caddy-config:
+  ntfy-cache:

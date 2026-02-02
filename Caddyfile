@@ -1,0 +1,20 @@
+{$DOMAIN} {
+    # Content Security Policy
+    header Content-Security-Policy "default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; connect-src 'self' wss:; img-src 'self' data:;"
+
+    # HTTP Strict Transport Security
+    header Strict-Transport-Security "max-age=31536000; includeSubDomains"
+
+    # ntfy reverse proxy
+    handle_path /ntfy/* {
+        reverse_proxy ntfy:80
+    }
+
+    # Main application
+    reverse_proxy claude-app:3000
+
+    log {
+        output stdout
+        format console
+    }
+}

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#1c1917">
+  <title>OnClaude</title>
+  <link rel="stylesheet" href="style.css?v=33">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="apple-touch-icon" href="/icon-192.svg">
+</head>
+<body>
+  <div id="app">
+    <div id="status-bar">
+      <span id="connection-status">
+        <span class="status-dot"></span>
+        <span class="status-text">Connecting...</span>
+      </span>
+      <span id="pty-status"></span>
+      <div id="status-buttons">
+        <button id="auto-btn-toggle" class="status-btn" title="Toggle auto-buttons">🔘</button>
+        <button id="nav-toggle-btn" class="status-btn" title="Toggle nav keys">⌨️</button>
+        <button id="notify-btn" class="status-btn notify-off" title="Notifications">🔕</button>
+        <button id="stop-btn" class="status-btn hidden">Stop</button>
+      </div>
+    </div>
+
+    <div id="terminal-container">
+      <div id="terminal"></div>
+    </div>
+
+    <div id="url-banner" class="hidden">
+      <button id="url-open-btn">Auth</button>
+      <button id="url-close-btn">&times;</button>
+    </div>
+    <span id="url-text" class="hidden"></span>
+
+    <div id="welcome" class="hidden">
+      <div class="welcome-content">
+        <h1>OnClaude</h1>
+        <p>Mobile Remote for Claude Code</p>
+
+        <div id="login-form">
+          <input type="text" id="login-user" placeholder="Username" autocomplete="username" autocapitalize="off">
+          <input type="password"
+            id="login-pass"
+            placeholder="Password"
+            autocomplete="current-password"
+            autocapitalize="off"
+            autocorrect="off"
+            spellcheck="false"
+            data-lpignore="true"
+            data-form-type="password">
+          <div id="login-error" class="error-text hidden"></div>
+          <button id="login-btn" class="primary-btn">Login</button>
+        </div>
+
+        <div id="start-options" class="hidden">
+          <div id="last-dir-label" class="hidden">Last: <span id="last-dir-name"></span></div>
+          <input type="text" id="start-dir" placeholder="Project folder (e.g., myproject)">
+          <input type="text" id="start-args" placeholder="Additional arguments (optional)">
+          <button id="start-btn" class="primary-btn">Start Claude Code</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="exit-screen" class="hidden">
+      <div class="exit-content">
+        <h2>Process Exited</h2>
+        <p id="exit-info"></p>
+        <button id="restart-btn" class="primary-btn">Restart</button>
+      </div>
+    </div>
+
+    <div id="input-area">
+      <div id="options-container" class="hidden">
+        <div id="options-prompt"></div>
+        <div id="options-buttons"></div>
+      </div>
+
+      <div id="nav-keys" class="hidden">
+        <button class="nav-btn" data-key="up">▲</button>
+        <button class="nav-btn" data-key="down">▼</button>
+        <button class="nav-btn" data-key="backspace">⌫</button>
+        <button class="nav-btn" data-key="enter">Enter</button>
+        <button class="nav-btn" data-key="escape">Esc</button>
+        <button class="nav-btn" data-key="y">Y</button>
+        <button class="nav-btn" data-key="n">N</button>
+      </div>
+
+      <div id="text-input-container">
+        <input type="text" id="text-input" placeholder="Type a message..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+        <button id="send-btn">Send</button>
+      </div>
+    </div>
+  </div>
+
+  <link rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/@xterm/xterm@5.5.0/css/xterm.css"
+    integrity="sha384-8Xk9wy/gzEDUKrXtrmCFa2bBuK3BpjpDuL/p0SeKQX19Khl/M+lHOgD/CyYf7efP"
+    crossorigin="anonymous">
+  <script src="https://cdn.jsdelivr.net/npm/@xterm/xterm@5.5.0/lib/xterm.min.js"
+    integrity="sha384-J4qzUjBl1FxyLsl/kQPQIOeINsmp17OHYXDOMpMxlKX53ZfYsL+aWHpgArvOuof9"
+    crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@xterm/addon-fit@0.10.0/lib/addon-fit.min.js"
+    integrity="sha384-XGqKrV8Jrukp1NITJbOEHwg01tNkuXr6uB6YEj69ebpYU3v7FvoGgEg23C1Gcehk"
+    crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@xterm/addon-web-links@0.11.0/lib/addon-web-links.min.js"
+    integrity="sha384-S1biLeI8L/bFduIVvCxbn/l4EtaG4nTqQjGF7qCYTbsGXGFe8KgIKXtw4+UWxprv"
+    crossorigin="anonymous"></script>
+  <script src="app.js?v=83"></script>
+</body>
+</html>

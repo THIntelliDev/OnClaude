@@ -195,7 +195,7 @@ app.set('trust proxy', 1);
 const server = http.createServer(app);
 const wss = new WebSocketServer({
   server,
-  maxPayload: 65536, // 64KB - reject at WebSocket level before buffering
+  maxPayload: 16384, // 16KB - reject at WebSocket level before buffering
   perMessageDeflate: false, // Disable compression to prevent zip bombs
 });
 
@@ -248,17 +248,17 @@ app.use(helmet({
   xssFilter: true,
 }));
 
-// Rate limiting: 100 requests per minute
+// Rate limiting: 20 requests per minute
 const limiter = rateLimit({
   windowMs: 60 * 1000,
-  max: 100,
+  max: 20,
   message: { error: 'Too many requests' },
 });
 app.use(limiter);
 
 // WebSocket rate limiting
 const wsConnections = new Map(); // IP -> timestamp[]
-const WS_RATE_LIMIT = 10; // max connections per minute per IP
+const WS_RATE_LIMIT = 3; // max connections per minute per IP
 const WS_WINDOW = 60 * 1000;
 
 const ptyManager = new PTYManager({ cols: 120, rows: 40 });
@@ -340,8 +340,16 @@ function validateCsrf(req, res, next) {
   next();
 }
 
-// Login endpoint with CSRF protection
-app.post('/api/login', validateCsrf, async (req, res) => {
+// Login rate limiting: 5 failed attempts per hour
+const loginLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 5,
+  message: { error: 'Too many login attempts, try again later' },
+  skipSuccessfulRequests: true,
+});
+
+// Login endpoint with rate limiting and CSRF protection
+app.post('/api/login', loginLimiter, validateCsrf, async (req, res) => {
   const { username, password } = req.body;
 
   if (!config.auth.passHash) {
@@ -477,8 +485,8 @@ app.get('/api/state', requireAuth, (req, res) => {
 
 // WebSocket abuse tracking
 const bannedIps = new Map(); // IP -> ban expiry timestamp
-const MAX_VIOLATIONS = 5; // Disconnect after this many violations
-const BAN_DURATION = 5 * 60 * 1000; // 5 minute ban for severe abuse
+const MAX_VIOLATIONS = 3; // Disconnect after this many violations
+const BAN_DURATION = 24 * 60 * 60 * 1000; // 24 hour ban for severe abuse
 
 // Clean up expired bans every minute
 setInterval(() => {
@@ -548,14 +556,14 @@ wss.on('connection', (ws, req) => {
   );
 
   // WebSocket message rate limiting config
-  const MESSAGE_RATE_LIMIT = 30; // messages per second
+  const MESSAGE_RATE_LIMIT = 10; // messages per second
   const MESSAGE_WINDOW = 1000;
 
   ws.on('message', (message) => {
     // Secondary check (primary is WebSocket maxPayload)
     // Buffer.byteLength handles both string and Buffer
     const size = Buffer.isBuffer(message) ? message.length : Buffer.byteLength(message);
-    if (size > 65536) {
+    if (size > 16384) {
       console.log('[WS] Rejected oversized message:', size);
       ws.close(1009, 'Message too large'); // 1009 = Message Too Big
       return;
